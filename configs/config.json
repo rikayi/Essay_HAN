@@ -1,0 +1,22 @@
+{
+  "exp_name": "han_1",
+
+
+  "vocab_size": 4196,
+  "embedding_size": 200,
+  "hidden_size": 50,
+  "word_ctx_size": 100,
+  "sentence_ctx_size": 100,
+  "num_classes": 5,
+
+  "batch_size": 32,
+  "num_epochs": 10,
+
+  "learning_rate": 1e-4,
+
+  "max_to_keep": 2,
+
+
+  "num_parallel_calls": 4,
+  "save_summary_steps": 1
+}
