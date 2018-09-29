@@ -1,16 +1,21 @@
 {
   "exp_name": "han_1",
 
+  "max_sent": 40,
+  "max_word": 40,
+  "vocab_size": 2070,
+  
+  "min_rating": 2,
+  "max_rating": 12,
 
-  "vocab_size": 4196,
   "embedding_size": 200,
   "hidden_size": 50,
   "word_ctx_size": 100,
   "sentence_ctx_size": 100,
-  "num_classes": 5,
+
 
   "batch_size": 32,
-  "num_epochs": 10,
+  "num_epochs": 50,
 
   "learning_rate": 1e-4,
 

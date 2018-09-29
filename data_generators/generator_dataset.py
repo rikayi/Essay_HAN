@@ -19,10 +19,6 @@ class DataLoader:
     def __init__(self, config):
         self.config = config
 
-        data_dir = os.path.join('..','data')
-        train_dir = os.path.join(data_dir, 'Train')
-        test_dir = os.path.join(data_dir, 'Test')
-
         self.train_x = np.load('../data/x_train1.npy')
         self.train_y = np.load('../data/y_train1.npy')
         self.test_x = np.load('../data/x_test1.npy')
@@ -53,9 +49,8 @@ class DataLoader:
 
     def _build_dataset_api(self):
         with tf.device('/cpu:0'):
-            self.features_placeholder = tf.placeholder(tf.int32, [None, 40, 40])
+            self.features_placeholder = tf.placeholder(tf.int32, [None, self.config.max_sent, self.config.max_word])
             self.labels_placeholder = tf.placeholder(tf.float32,[None,])
-            self.mode_placeholder = tf.placeholder(tf.string, shape=())
 
             # Create a Dataset serving batches of images and labels
             # We don't repeat for multiple epochs because we always train and evaluate for one epoch
@@ -84,12 +79,12 @@ class DataLoader:
 
             sess.run(self.iterator_init_op, feed_dict={self.features_placeholder: self.train_x,
                                                    self.labels_placeholder: self.train_y,
-                                                   self.mode_placeholder: mode})
+                                                   })
         
         else:
             sess.run(self.iterator_init_op, feed_dict={self.features_placeholder: self.test_x,
                                                    self.labels_placeholder: self.test_y,
-                                                   self.mode_placeholder: mode})
+                                                   })
 
 
     def get_inputs(self):

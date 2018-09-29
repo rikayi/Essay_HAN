@@ -6,6 +6,7 @@ import tensorflow as tf
 import numpy as np
 
 from utils.metrics import AverageMeter
+from utils.kappa import quadratic_weighted_kappa
 
 
 class HANTrainer(BaseTrain):
@@ -33,8 +34,8 @@ class HANTrainer(BaseTrain):
         # Summarizer
         self.summarizer = logger
 
-        self.x, self.y, self.is_training = tf.get_collection('inputs')
-        self.train_op, self.loss_node, self.accuracy_node = tf.get_collection('train')
+        self.x, self.y = tf.get_collection('inputs')
+        self.train_op, self.loss_node = tf.get_collection('train')
         self.out = tf.get_collection('out')
     
     def train(self):
@@ -62,40 +63,46 @@ class HANTrainer(BaseTrain):
                   desc="epoch-{}-".format(epoch))
 
         loss_per_epoch = AverageMeter()
-        acc_per_epoch = AverageMeter()
+        kappa_per_epoch = AverageMeter()
 
         # Iterate over batches
         for cur_it in tt:
-            # One Train step on the current batch
-            loss, acc = self.train_step()
+            # One step on the current batch
+            loss, kappa = self.step()
             # update metrics returned from train_step func
             loss_per_epoch.update(loss)
-            acc_per_epoch.update(acc)
+            kappa_per_epoch.update(kappa)
 
         self.sess.run(self.model.global_epoch_inc)
 
         # summarize
         summaries_dict = {'train/loss_per_epoch': loss_per_epoch.val,
-                          'train/acc_per_epoch': acc_per_epoch.val}
+                          'train/kappa_per_epoch': kappa_per_epoch.val}
         self.summarizer.summarize(self.model.global_step_tensor.eval(self.sess), summaries_dict)
 
         self.model.save(self.sess)
         
         print("""
-Epoch-{}  loss:{:.4f} -- acc:{:.4f}
-        """.format(epoch, loss_per_epoch.val, acc_per_epoch.val))
+Epoch-{}  loss:{:.4f} -- kappa:{:.4f}
+        """.format(epoch, loss_per_epoch.val, kappa_per_epoch.val))
 
         tt.close()
 
-    def train_step(self):
+    def step(self):
         """
-        Run the session of train_step in tensorflow
-        also get the loss & acc of that minibatch.
-        :return: (loss, acc) tuple of some metrics to be used in summaries
+        Run the session of step in tensorflow
+        also get the loss & kappa of that minibatch.
+        :return: (loss, kappa) tuple of some metrics to be used in summaries
         """
-        _, loss, acc = self.sess.run([self.train_op, self.loss_node, self.accuracy_node],
-                                     feed_dict={self.is_training: True})
-        return loss, acc
+        _, loss, y, predictions = self.sess.run([self.train_op, self.loss_node, self.y, self.out])
+
+        #rescaling to original values
+        predictions = np.squeeze(np.array(predictions))
+        y = np.around(y*(self.config.max_rating-self.config.min_rating)+self.config.min_rating)
+        predictions = np.around(predictions*(self.config.max_rating-self.config.min_rating)+self.config.min_rating)
+
+        kappa = quadratic_weighted_kappa(y, predictions, self.config.min_rating, self.config.max_rating)
+        return loss, kappa
     
     def test(self, epoch):
         # initialize dataset
@@ -106,26 +113,23 @@ Epoch-{}  loss:{:.4f} -- acc:{:.4f}
                   desc="Val-{}-".format(epoch))
 
         loss_per_epoch = AverageMeter()
-        acc_per_epoch = AverageMeter()
+        kappa_per_epoch = AverageMeter()
         # Iterate over batches
         for cur_it in tt:
-            # One Train step on the current batch
-            loss, out, acc = self.sess.run([self.loss_node, self.out, self.accuracy_node],
-                                     feed_dict={self.is_training: False})
-            # update metrics returned from train_step func
+            # One step on the current batch
+            loss, kappa = self.step()
+            # update metrics returned from step func
             loss_per_epoch.update(loss)
-            acc_per_epoch.update(acc)
+            kappa_per_epoch.update(kappa)
 
             
-            
-
         # summarize
         summaries_dict = {'test/loss_per_epoch': loss_per_epoch.val,
-                          'test/acc_per_epoch': acc_per_epoch.val}
+                          'test/kappa_per_epoch': kappa_per_epoch.val}
         self.summarizer.summarize(self.model.global_step_tensor.eval(self.sess), summaries_dict)
         
         print("""
-Epoch-{}  loss:{:.4f} -- acc:{:.4f}
-        """.format(epoch, loss_per_epoch.val, acc_per_epoch.val))
+Epoch-{}  loss:{:.4f} -- kappa:{:.4f}
+        """.format(epoch, loss_per_epoch.val, kappa_per_epoch.val))
 
         tt.close()

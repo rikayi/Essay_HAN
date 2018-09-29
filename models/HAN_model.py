@@ -13,7 +13,6 @@ class HANModel(BaseModel):
         # define some important variables
         self.x = None
         self.y = None
-        self.is_training = None
         self.loss = None
         self.optimizer = None
         self.train_step = None
@@ -23,10 +22,9 @@ class HANModel(BaseModel):
         self.hidden_size = self.config.hidden_size
         self.word_ctx_size = self.config.word_ctx_size
         self.sentence_ctx_size = self.config.sentence_ctx_size
-        self.num_classes = self.config.num_classes
         self.batch_size=self.config.batch_size
-        self.max_sentence_num = 40
-        self.max_sentence_length = 40
+        self.max_sentence_num = self.config.max_sent
+        self.max_sentence_length = self.config.max_word
 
 
         self.build_model()
@@ -51,11 +49,11 @@ class HANModel(BaseModel):
         """
         with tf.variable_scope('inputs'):
             self.x, self.y = self.data_loader.get_inputs()
-            self.is_training = tf.placeholder(tf.bool, name='Training_flag')
+
             
         tf.add_to_collection('inputs', self.x)
         tf.add_to_collection('inputs', self.y)
-        tf.add_to_collection('inputs', self.is_training)
+
 
         
         
@@ -121,9 +119,6 @@ class HANModel(BaseModel):
             self.y = tf.expand_dims(self.y, axis=1)
             self.loss = tf.losses.mean_squared_error(labels=self.y, predictions=self.out)
 
-        with tf.name_scope('accuracy'):
-            
-            self.accuracy = self.loss
 
         with tf.variable_scope('train_step'):
             self.optimizer = tf.train.AdamOptimizer(self.config.learning_rate)
@@ -133,7 +128,6 @@ class HANModel(BaseModel):
 
         tf.add_to_collection('train', self.train_step)
         tf.add_to_collection('train', self.loss)
-        tf.add_to_collection('train', self.accuracy)
 
     def init_saver(self):
         """
