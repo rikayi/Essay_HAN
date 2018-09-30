@@ -1,0 +1,9 @@
+numpy
+pandas
+scikit-learn
+nltk
+tensorflow>=1.5
+tabulate
+tqdm
+easydict
+
