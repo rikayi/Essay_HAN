@@ -19,10 +19,10 @@ class DataLoader:
     def __init__(self, config):
         self.config = config
 
-        self.train_x = np.load('../data/x_train1.npy')
-        self.train_y = np.load('../data/y_train1.npy')
-        self.test_x = np.load('../data/x_test1.npy')
-        self.test_y = np.load('../data/y_test1.npy')
+        self.train_x = np.load('../data/x_train.npy')
+        self.train_y = np.load('../data/y_train.npy')
+        self.test_x = np.load('../data/x_test.npy')
+        self.test_y = np.load('../data/y_test.npy')
         
         # Define datasets sizes
         self.train_size = self.train_x.shape[0]

@@ -1,27 +1,18 @@
 {
-  "exp_name": "han_1",
-
-  "max_sent": 40,
-  "max_word": 40,
-  "vocab_size": 2070,
-  
-  "min_rating": 2,
-  "max_rating": 12,
-
-  "embedding_size": 200,
-  "hidden_size": 50,
-  "word_ctx_size": 100,
-  "sentence_ctx_size": 100,
-
-
-  "batch_size": 32,
-  "num_epochs": 50,
-
-  "learning_rate": 1e-4,
-
-  "max_to_keep": 2,
-
-
-  "num_parallel_calls": 4,
-  "save_summary_steps": 1
+    "exp_name": "han_1",
+    "max_sent": 50,
+    "max_word": 50,
+    "vocab_size": 6068,
+    "min_rating": 0,
+    "max_rating": 60,
+    "embedding_size": 200,
+    "hidden_size": 50,
+    "word_ctx_size": 100,
+    "sentence_ctx_size": 100,
+    "batch_size": 32,
+    "num_epochs": 50,
+    "learning_rate": 0.0001,
+    "max_to_keep": 2,
+    "num_parallel_calls": 4,
+    "save_summary_steps": 1
 }

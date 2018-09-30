@@ -22,7 +22,6 @@ class HANModel(BaseModel):
         self.hidden_size = self.config.hidden_size
         self.word_ctx_size = self.config.word_ctx_size
         self.sentence_ctx_size = self.config.sentence_ctx_size
-        self.batch_size=self.config.batch_size
         self.max_sentence_num = self.config.max_sent
         self.max_sentence_length = self.config.max_word
 
